@@ -9,6 +9,9 @@ def run_demo():
 
     stevon_clone = BankAccount.load_from_file("stevon_save.json")
     print(f"Loaded from JSON: {stevon_clone}")
+
+    print("\n--- Testing *args in Batch Processing---")
+    stevon.batch_deposit(100, -50, 200, 0, 300)
 def run_demo2():
     api_data = {"owner":"Alice","balance":1500.0}
 
@@ -29,23 +32,43 @@ def run_demo2():
         print("End of transaction")        
         
 
+
+def run_demo3():
+    print("\n---Reading Logs with Generator---")
+    log_reader=transaction_history()    
+    
+    print("First transaction:", next(log_reader))
+    print("Second transaction:", next(log_reader))
+    
+    
+    print("Remaining transactions:")
+    for transaction in log_reader:
+        print(transaction)
+           
+    print("\n---Memory usage comparison---")
+    massive_list = [x for x in range(1000000)]
+    massive_generator = (x for x in range(1000000))
+    
+    print(f"List Memory:{sys.getsizeof(massive_list):,} bytes")
+    print(f"Generator Memory:{sys.getsizeof(massive_generator):,} bytes")
+
+def sorting():
+    print("\n~~~Lambda and Functional ways used to sort~~~")
+
+    stevon_mom = BankAccount("Stevon_Mom", 500)
+    Alice_Dad = BankAccount("Alice_Dad", 1500)
+    Stalice = BankAccount("Stalice", 50)
+    bank_database = [stevon_mom, Alice_Dad,Stalice]
+
+    bank_database.sort(key=lambda acc: acc.balance, reverse=True)
+    print(f"Sorted Bank: {bank_database}")
+
+    balance_comp = [acc.balance for acc in bank_database]
+    print(f"Balances:{balance_comp}")
+
+    vip_comp=[acc for acc in bank_database if acc.balance > 1000]
+    print(f"VIP Clients: {vip_comp}")
+
+
 if __name__ == "__main__":
-    run_demo()
-
-print("\n---Reading Logs with Generator---")
-log_reader=transaction_history()    
-
-print("First transaction:", next(log_reader))
-print("Second transaction:", next(log_reader))
-
-
-print("Remaining transactions:")
-for transaction in log_reader:
-    print(transaction)
-       
-print("\n---Memory usage comparison---")
-massive_list = [x for x in range(1000000)]
-massive_generator = (x for x in range(1000000))
-
-print(f"List Memory:{sys.getsizeof(massive_list):,} bytes")
-print(f"Generator Memory:{sys.getsizeof(massive_generator):,} bytes")
+    sorting()

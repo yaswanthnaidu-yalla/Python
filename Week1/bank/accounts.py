@@ -19,9 +19,7 @@ class BankAccount:
         print(f"Account state safely backed up to {filename}")    
     @classmethod
     def from_dict(cls, data):
-        owner_name=data.get("owner","unknown")
-        starting_balance=data.get("balance",0.0)
-        return cls(owner_name,starting_balance)
+        return cls(**data)
     @classmethod
     def load_from_file(cls, filename="data/account_data.json"):
         try:
@@ -46,7 +44,7 @@ class BankAccount:
     @balance.setter
     def balance(self,value):
         self.__balance = value
-        
+
     @logger
 
     def deposit(self, amount):
@@ -55,6 +53,13 @@ class BankAccount:
         self._log_transaction("Deposit",amount)
         return self.balance
     
+    def batch_deposit(self,*amounts):
+        valid_amounts=[amt for amt in amounts if amt>0]
+        for amount in valid_amounts:
+            self.deposit(amount)
+        print(f"Processed{len(valid_amounts)}Valid deposits out of {len(amounts)} attempted")
+        return self.balance    
+
     def withdraw(self, amount):
         if self.balance>=amount:
             self.balance -=amount
