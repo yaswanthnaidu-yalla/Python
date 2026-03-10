@@ -98,7 +98,21 @@ class CurrentAccount(BankAccount):
         else:
             return "limit exceeded"
         
-    
+class BaseAccount:
+    def get_benefits(self):
+        return "Free ATM withdrawals."
+
+class CreditLine(BaseAccount):
+    def get_benefits(self):
+        return "Borrowing limit of $5000. " + super().get_benefits()
+
+class Rewards(BaseAccount):
+    def get_benefits(self):
+        return "2% Cash Back. " + super().get_benefits()
+
+class PremiumTravelCard(CreditLine, Rewards):
+    def get_benefits(self):
+        return "No foreign transaction fees. " + super().get_benefits()    
 
 
         

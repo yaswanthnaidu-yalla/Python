@@ -1,3 +1,6 @@
+from accounts import PremiumTravelCard
+from models import Transaction
+from payments import PaymentProcessor, UPIProcessor, RazorpayProcessor
 import sys
 from utils import transaction_history
 from accounts import  BankAccount, SavingsAccount, CurrentAccount
@@ -69,6 +72,58 @@ def sorting():
     vip_comp=[acc for acc in bank_database if acc.balance > 1000]
     print(f"VIP Clients: {vip_comp}")
 
+def payments():
+    print("\n--- Testing Abstract Base Classes ---")
+    upi = UPIProcessor()
+
+    upi.process_payment(500)
+    
+    razorpay = RazorpayProcessor()
+
+    razorpay.process_payment(1200)
+
+    print("\nAttempting to create a generic PaymentProcessor...")
+
+    try:
+
+        generic = PaymentProcessor()
+
+    except TypeError as e:
+
+        print(f" SUCCESSFUL CRASH: {e}")
+
+def dataclasses():
+    print("\n--- Testing Dataclasses ---") 
+
+    txn1 = Transaction(txn_id="UPI_9982", amount=500.0, processor="GPay")    
+
+
+
+    print(txn1)    
+
+    
+
+    print("\nAttempting to modify a frozen transaction...")
+
+    try:
+
+        txn1.amount = 9000.0 
+
+    except Exception as e:
+
+        print(f" SUCCESSFUL CRASH: {type(e).__name__} - {e}")
+
+def multiple_inheritence():
+    print("\n--- Testing Multiple Inheritance & MRO ---")
+    print("The MRO Tuple:")
+    for i, cls in enumerate(PremiumTravelCard.__mro__):
+       print(f"  {i}. {cls.__name__}")
+            
+    print("\n--- Running the Cooperative Method ---")
+       
+    my_card = PremiumTravelCard()
+    print(my_card.get_benefits())
+
 
 if __name__ == "__main__":
-    sorting()
+    multiple_inheritence()
