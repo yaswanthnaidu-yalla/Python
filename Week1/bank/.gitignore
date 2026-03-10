@@ -1,0 +1,7 @@
+__pysache__/
+*.py[cod]
+*$py.class
+
+data/
+*.log
+*.json
