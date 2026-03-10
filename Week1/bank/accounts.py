@@ -1,3 +1,4 @@
+from utils import logger, timer, retry
 import json
 from exceptions import InsufficientFundsError, InvalidAmountError
 class BankAccount:
@@ -45,6 +46,8 @@ class BankAccount:
     @balance.setter
     def balance(self,value):
         self.__balance = value
+        
+    @logger
 
     def deposit(self, amount):
         self.validate_amount(amount)    

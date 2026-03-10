@@ -1,3 +1,5 @@
+import sys
+from utils import transaction_history
 from accounts import  BankAccount, SavingsAccount, CurrentAccount
 from exceptions import InsufficientFundsError, InvalidAmountError 
 def run_demo():
@@ -29,7 +31,21 @@ def run_demo2():
 
 if __name__ == "__main__":
     run_demo()
+
+print("\n---Reading Logs with Generator---")
+log_reader=transaction_history()    
+
+print("First transaction:", next(log_reader))
+print("Second transaction:", next(log_reader))
+
+
+print("Remaining transactions:")
+for transaction in log_reader:
+    print(transaction)
        
+print("\n---Memory usage comparison---")
+massive_list = [x for x in range(1000000)]
+massive_generator = (x for x in range(1000000))
 
-
-    
+print(f"List Memory:{sys.getsizeof(massive_list):,} bytes")
+print(f"Generator Memory:{sys.getsizeof(massive_generator):,} bytes")
