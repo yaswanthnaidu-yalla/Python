@@ -33,13 +33,13 @@ def retry(max_attempts=3):
                     if attempt==max_attempts:
                         print("Max tries reached, failed permanently.")
                         raise e
-            return wrapper
-        return decorator
+        return wrapper
+    return decorator
             
 def transaction_history(filepath="data/transaction.log"):
-    try:
-        with open(filepath, "r") as file:
-            for line in file:
-                yield line.strip()
-    except FileNotFoundError:
-        yield "No transaction history found."
+   import os
+   if not os.path.exists(filepath):
+       yield "No history found."
+       return
+   with open(filepath, "r") as file:
+       yield from (line.strip() for line in file)

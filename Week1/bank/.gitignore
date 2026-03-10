@@ -1,7 +1,13 @@
-__pysache__/
+# Python
+__pycache__/
 *.py[cod]
-*$py.class
+*.pyc
 
+# Data & Logs
 data/
 *.log
 *.json
+
+# Testing
+.pytest_cache/
+.coverage

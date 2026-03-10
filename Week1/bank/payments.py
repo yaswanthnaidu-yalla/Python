@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from utils import retry
 
 class PaymentProcessor(ABC):
     def validate_amount(self,amount):
@@ -19,10 +20,10 @@ class PaymentProcessor(ABC):
 
 
 class UPIProcessor(PaymentProcessor):    
-
+    @retry(max_attempts=3)
     def process_payment(self, amount):
 
-        self.validate_amount(amount) # Using the shared parent method!
+        self.validate_amount(amount) 
 
         print(f" Processing ${amount} via UPI (GPay/PhonePe)...")
 

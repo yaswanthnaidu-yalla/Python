@@ -1,129 +1,113 @@
-from accounts import PremiumTravelCard
-from models import Transaction
-from payments import PaymentProcessor, UPIProcessor, RazorpayProcessor
-import sys
-from utils import transaction_history
+import os
+from payments import  UPIProcessor, RazorpayProcessor
 from accounts import  BankAccount, SavingsAccount, CurrentAccount
-from exceptions import InsufficientFundsError, InvalidAmountError 
-def run_demo():
-    stevon=BankAccount("Stevon",100.0)
-    stevon.deposit(400)
-    stevon.save_to_file("stevon_save.json")
 
-    stevon_clone = BankAccount.load_from_file("stevon_save.json")
-    print(f"Loaded from JSON: {stevon_clone}")
 
-    print("\n--- Testing *args in Batch Processing---")
-    stevon.batch_deposit(100, -50, 200, 0, 300)
-def run_demo2():
-    api_data = {"owner":"Alice","balance":1500.0}
 
-    account_from_api = BankAccount.from_dict(api_data)
-    print("created with class method:", account_from_api)
+def setup():
+    """Ensure the environment is ready."""
+    if not os.path.exists("data"):
+        os.makedirs("data")
+        print("| System: Created missing 'data/' directory.")
+def get_save_path(name):
+    return f"data/{name.lower()}_save.json"
+def get_account():
+    print("\n--- Banking System ---")
+    print("1. Create New Account")
+    print("2. Load Existing Account")
+    entry_choice = input("Selection: ")
 
-    print("\nAttempting a deposit")
-    try:
-        account_from_api.deposit(500)
-    except InvalidAmountError as e:
-        print(f"Alert: {e}")
-    except InsufficientFundsError as e:
-        print(f"Alert:{e}")
-    else:
-        print("Transaction successful")
-        print(f"New Balance: {account_from_api.get_balance()}")
-    finally:
-        print("End of transaction")        
+    if entry_choice == "2":
+        name = input("Enter account holder name: ")
+        path = get_save_path(name)
+        print(f"looking for: {path}")
+        if not os.path.exists(path):
+            print(f"No saved account found for '{name}'.")
+            return get_account()
+        return BankAccount.load_from_file(filename=path)
+
+    print("\n--- Select Account Type ---")
+    print("1. Basic | 2. Savings | 3. Current")
+    type_choice = input("Selection: ")
+    name = input("Enter owner name: ")
+    initial_deposit = float(input("Initial Deposit: "))
+
+    match type_choice:
+        case "2":
+            return SavingsAccount(name, initial_deposit)
+        case "3":
+            return CurrentAccount(name, initial_deposit)
+        case _:
+            return BankAccount(name, initial_deposit)
+
+def cli_menu():
+    setup()
+    account = get_account()
+    processors = {"1": UPIProcessor(), "2": RazorpayProcessor()}
+
+    while True:
+        print(f"\n| User: {account.owner} | Balance: ${account.balance:.2f} |")
+        print("-" * 40)
+        print("1. Deposit")
+        print("2. Withdraw")
+        print("3. Apply Interest")
+        print("4. Process Payment")
+        print("5. View History")
+        print("6. Save and Exit")
         
+        choice = input("Action: ")
 
+        try:
+            match choice:
+                case "1":
+                    amount = float(input("Amount: "))
+                    account.deposit(amount)
+                
+                case "2":
+                    amount = float(input("Amount: "))
+                    account.withdraw(amount)
+                
+                case "3":
+                    if isinstance(account, SavingsAccount):
+                        earned = account.apply_interest(rate=0.05,time=1)
+                        print(f"Interest Earned: ${earned:.2f}")
+                    else:
+                        print("Error: Interest only available for Savings Accounts")
+                
+                case "4":
+                    print("1. UPI | 2. Razorpay")
+                    gate = input("Gateway: ")
+                    if gate in processors:
+                        amt = float(input("Amount: "))
+                        txn_id = processors[gate].process_payment(amt)
+                        account.withdraw(amt)
+                        print(f"Success. Transaction ID: {txn_id}")
+                    else:
+                        print("Invalid Gateway")
 
-def run_demo3():
-    print("\n---Reading Logs with Generator---")
-    log_reader=transaction_history()    
-    
-    print("First transaction:", next(log_reader))
-    print("Second transaction:", next(log_reader))
-    
-    
-    print("Remaining transactions:")
-    for transaction in log_reader:
-        print(transaction)
-           
-    print("\n---Memory usage comparison---")
-    massive_list = [x for x in range(1000000)]
-    massive_generator = (x for x in range(1000000))
-    
-    print(f"List Memory:{sys.getsizeof(massive_list):,} bytes")
-    print(f"Generator Memory:{sys.getsizeof(massive_generator):,} bytes")
+                case "5":
+                    from utils import transaction_history
+                    print("\n--- Transaction Log ---")
+                    found = False
+                    for entry in transaction_history():
+                        if account.owner in entry:
+                            print(entry)
+                            found = True
+                    if not found:
+                        print("No transactions found on this account")        
 
-def sorting():
-    print("\n~~~Lambda and Functional ways used to sort~~~")
+                case "6":
+                    path = get_save_path(account.owner)
+                    account.save_to_file(filename=path)
+                    print("Account saved. Session ended.")
+                    return
 
-    stevon_mom = BankAccount("Stevon_Mom", 500)
-    Alice_Dad = BankAccount("Alice_Dad", 1500)
-    Stalice = BankAccount("Stalice", 50)
-    bank_database = [stevon_mom, Alice_Dad,Stalice]
+                case _:
+                    print("Invalid input")
 
-    bank_database.sort(key=lambda acc: acc.balance, reverse=True)
-    print(f"Sorted Bank: {bank_database}")
-
-    balance_comp = [acc.balance for acc in bank_database]
-    print(f"Balances:{balance_comp}")
-
-    vip_comp=[acc for acc in bank_database if acc.balance > 1000]
-    print(f"VIP Clients: {vip_comp}")
-
-def payments():
-    print("\n--- Testing Abstract Base Classes ---")
-    upi = UPIProcessor()
-
-    upi.process_payment(500)
-    
-    razorpay = RazorpayProcessor()
-
-    razorpay.process_payment(1200)
-
-    print("\nAttempting to create a generic PaymentProcessor...")
-
-    try:
-
-        generic = PaymentProcessor()
-
-    except TypeError as e:
-
-        print(f" SUCCESSFUL CRASH: {e}")
-
-def dataclasses():
-    print("\n--- Testing Dataclasses ---") 
-
-    txn1 = Transaction(txn_id="UPI_9982", amount=500.0, processor="GPay")    
-
-
-
-    print(txn1)    
-
-    
-
-    print("\nAttempting to modify a frozen transaction...")
-
-    try:
-
-        txn1.amount = 9000.0 
-
-    except Exception as e:
-
-        print(f" SUCCESSFUL CRASH: {type(e).__name__} - {e}")
-
-def multiple_inheritence():
-    print("\n--- Testing Multiple Inheritance & MRO ---")
-    print("The MRO Tuple:")
-    for i, cls in enumerate(PremiumTravelCard.__mro__):
-       print(f"  {i}. {cls.__name__}")
-            
-    print("\n--- Running the Cooperative Method ---")
-       
-    my_card = PremiumTravelCard()
-    print(my_card.get_benefits())
+        except Exception as e:
+            print(f"Error: {e}")
 
 
 if __name__ == "__main__":
-    multiple_inheritence()
+    cli_menu()

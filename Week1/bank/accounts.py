@@ -1,4 +1,5 @@
 from utils import logger, timer, retry
+import os
 import json
 from exceptions import InsufficientFundsError, InvalidAmountError
 class BankAccount:
@@ -6,6 +7,8 @@ class BankAccount:
         self.owner = owner
         self.__balance = balance
     def _log_transaction(self,action,amount):
+        if not os.path.exists("data"):
+            os.makedirs("data")
         with open("data/transaction.log","a") as file:
             file.write(f"{self.owner}|{action}|${amount}|New Balance: ${self.balance}\n")
     def save_to_file(self, filename="data/account_data.json"):
@@ -22,13 +25,10 @@ class BankAccount:
         return cls(**data)
     @classmethod
     def load_from_file(cls, filename="data/account_data.json"):
-        try:
-            with open(filename,"r") as file:
+        with open(filename,"r") as file:
                 data = json.load(file)
-            return cls.from_dict(data)    
-        except FileNotFoundError:
-            print(f"Warning: {filename} not found. Returning a default account.")
-            return cls("unknown",0.0)
+        return cls.from_dict(data)    
+        
     
     
     @staticmethod
@@ -63,7 +63,7 @@ class BankAccount:
     def withdraw(self, amount):
         if self.balance>=amount:
             self.balance -=amount
-            self._log_transaction("Withdrawl",amount)
+            self._log_transaction("Withdrawal",amount)
             return self.__balance
         else:
             raise InsufficientFundsError(amount, self.balance)
@@ -86,7 +86,7 @@ class SavingsAccount(BankAccount):
             print(f"New Balance:{self.balance}")
             return self.balance
         else:
-            return "no interest applied"
+            return 0.0
       
 class CurrentAccount(BankAccount):
     def withdraw_credit(self,amount,overdraft_limit):
