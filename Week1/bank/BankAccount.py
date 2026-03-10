@@ -1,21 +1,42 @@
-
+import json
+from exceptions import InsufficientFundsError, InvalidAmountError
 class BankAccount:
     def __init__(self,owner,balance=0.0):
         self.owner = owner
         self.__balance = balance
+    def _log_transaction(self,action,amount):
+        with open("transaction.log","a") as file:
+            file.write(f"{self.owner}|{action}|${amount}|New Balance: ${self.balance}\n")
+    def save_to_file(self, filename="account_data.json"):
+        data= {
+            "owner":self.owner,
+            "balance":self.balance
+        }  
+
+        with open(filename, "w") as file:
+            json.dump(data,file,indent=4)
+        print(f"Account state safely backed up to {filename}")    
     @classmethod
     def from_dict(cls, data):
         owner_name=data.get("owner","unknown")
         starting_balance=data.get("balance",0.0)
         return cls(owner_name,starting_balance)
+    @classmethod
+    def load_from_file(cls, filename="account_data.json"):
+        try:
+            with open(filename,"r") as file:
+                data = json.load(file)
+            return cls.from_dict(data)    
+        except FileNotFoundError:
+            print(f"Warning: {filename} not found. Returning a default account.")
+            return cls("unknown",0.0)
+    
     
     @staticmethod
     def validate_amount(amount):
-        if amount>0:
-            return True
-        else:
-            print(f"Error:{amount} is not a valid amount. Must be greater than zero")
-            return False
+        if amount<=0:
+            raise InvalidAmountError(amount)
+            
 
     @property
     def balance(self):
@@ -26,16 +47,18 @@ class BankAccount:
         self.__balance = value
 
     def deposit(self, amount):
-        if self.validate_amount(amount):    
-            self.__balance += amount
+        self.validate_amount(amount)    
+        self.__balance += amount
+        self._log_transaction("Deposit",amount)
         return self.balance
     
     def withdraw(self, amount):
         if self.balance>=amount:
             self.balance -=amount
+            self._log_transaction("Withdrawl",amount)
             return self.__balance
         else:
-            return "insufficient balance"
+            raise InsufficientFundsError(amount, self.balance)
         
     def get_balance(self):
         return self.balance
@@ -78,34 +101,35 @@ class CurrentAccount(BankAccount):
 
 
 def run_demo():
-    acc = BankAccount('Bobby',100.0)
-    print(acc)
-    print(repr(acc))
-    print(f"Depositing $500.. New Balance: {acc.deposit(500)}")
-    print(f"Withdrawing $100.. New Balance{acc.withdraw(100)}")
-    print(f"Current Balance: {acc.get_balance()}")
+    stevon=BankAccount("Stevon",100.0)
+    stevon.deposit(400)
+    stevon.save_to_file("stevon_save.json")
 
-    savings=SavingsAccount("Bobby",500.0)
-    savings.deposit(200)
-    savings.apply_interest(0.05,2)
-    
-    current=CurrentAccount("Bobby",300)
-    print("withdraw 900")
-    current.withdraw_credit(900,1000)
+    stevon_clone = BankAccount.load_from_file("stevon_save.json")
+    print(f"Loaded from JSON: {stevon_clone}")
 def run_demo2():
     api_data = {"owner":"Alice","balance":1500.0}
 
     account_from_api = BankAccount.from_dict(api_data)
     print("created with class method:", account_from_api)
 
-    print("\nAttempting a negative deposit")
-
-    account_from_api.deposit(-50)
-    print("balance after bad deposit:",account_from_api.get_balance())    
+    print("\nAttempting a deposit")
+    try:
+        account_from_api.deposit(500)
+    except InvalidAmountError as e:
+        print(f"Alert: {e}")
+    except InsufficientFundsError as e:
+        print(f"Alert:{e}")
+    else:
+        print("Transaction successful")
+        print(f"New Balance: {account_from_api.get_balance()}")
+    finally:
+        print("End of transaction")        
+        
 
 if __name__ == "__main__":
-    run_demo2()    
-
+    run_demo()
+       
 
 
     
