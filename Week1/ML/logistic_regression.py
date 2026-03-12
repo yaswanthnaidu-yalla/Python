@@ -24,3 +24,7 @@ for i in range(epochs):
         print(f"Epoch {i}: Loss {loss:.4f}")
 
 print(f"\nFinal Model: Probability = Sigmoid({m:.2f}x + {b:.2f})")
+
+
+#1,2,3 as fail, 4,5,6 as pass. the data in x is study hours.
+#from the output , we find that the tipping point/decision boundary is 3.45 hrs.
