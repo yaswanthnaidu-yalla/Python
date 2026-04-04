@@ -1,5 +1,5 @@
 import numpy as np
-a = np.array([2,3,4])
+a = np.array([[2,3,4],[3,4,5]])
 print(a)
 #dtype gives the type of elements present in the array.
 #type can be specified while creation
@@ -19,5 +19,3 @@ print(b)
 
 print(np.linspace(0,7,20))
 print(np.sin(a))
-
-
