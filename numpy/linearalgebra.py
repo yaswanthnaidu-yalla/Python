@@ -30,3 +30,27 @@ print("Matrix A raised to power 3:\n", np.linalg.matrix_power(A, 3))
 #einsum_path() - lowest cost contraction order of an einsum expression by considering the creation of intermediate arrays
 #linalg.matrix_power() - raise a square matrix to integer power 
 #kron() - kronecker product of two arrays.
+
+#solcing equations and inverting matrices -
+#we use np.linalg.solve(a,b) to solve for x in ax=b
+#linald.lstsq() finds best fir minimizing difference between , when system doesnt have an exact solution, predicted and actual values
+#functions used
+# tensorsolve() for tensor equations
+#inv and pinv for inverse and pseudo inverse of a matrix
+#tensorinv()for inverse of a n dimension array.
+
+#special functions used-
+#np,linalg.det() for determinant of a matrix, trace(),numpy.linalg.norm()	Matrix or vector norm.
+#numpy.linalg.cond()	Compute the condition number of a matrix.
+#numpy.linalg.matrix_rank()	Return matrix rank of array using SVD method
+#numpy.linalg.cholesky()	Cholesky decomposition.
+#numpy.linalg.qr()	Compute the qr factorization of a matrix.
+#numpy.linalg.svd()	Singular Value Decomposition.
+
+#finally eigen value functions
+#to get an array of eigen values and matrix of eigenvalues  for a hermitian or real symmetric matrices we use
+#-- linalg.eigh()
+#for normal matrices we use - linalg.eig()
+#some commonly used functions-
+#linalg.eigvals()	Compute the eigenvalues of a general matrix.
+#linalg.eigvalsh(a[, UPLO])	Compute the eigenvalues of a complex Hermitian or real symmetric matrix.
