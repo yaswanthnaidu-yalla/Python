@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 telco_churn  = pd.read_csv("data/telco_churn.csv")
 #fo rfirst question-
+
 print(telco_churn.info())
 #answer-7043 rows and 21 columns
 #2nd question-
@@ -31,3 +32,7 @@ print(telco_churn["Churn"].value_counts())
 #dropping useless rows 
 telco_churn=telco_churn.dropna()
 print(telco_churn.info())
+result = telco_churn.groupby('customerID')['Partner'].sum()
+print(result)
+#can perform aggregation operations like sum max and mean.
+#can use lambda functions to apply transformation methods, can filter

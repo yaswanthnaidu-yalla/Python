@@ -1,0 +1,14 @@
+# Ignore the virtual environment
+.venv/
+
+# Ignore Python bytecode (the __pycache__ folders shown in your SS)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore local environment variables/secrets
+.env
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
