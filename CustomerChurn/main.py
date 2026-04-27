@@ -3,9 +3,11 @@ import joblib
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Literal
+
 app = FastAPI(title="Customer Churn Prediction API")
 try:
-    model = joblib.load('churn_model.pkl')
+    model = joblib.load('churn_model_lr.pkl')
+    scaler = joblib.load('scaler.pkl')
 except Exception as e:
     print(f"Error loading model: {e}")
 
@@ -30,7 +32,7 @@ class CustomerData(BaseModel):
     TotalCharges: float
 
 def preprocess_input(data: CustomerData):
-    df = pd.DataFrame([data.dict()])
+    df = pd.DataFrame([data.model_dump()])
     df['gender'] = df['gender'].map({'Male': 1, 'Female': 0})
     df['Partner'] = df['Partner'].map({'Yes': 1, 'No': 0})
     df['Dependents'] = df['Dependents'].map({'Yes': 1, 'No': 0})
@@ -60,7 +62,11 @@ def preprocess_input(data: CustomerData):
     for col in expected_columns:
         if col not in df_encoded.columns:
             df_encoded[col] = 0
-    return df_encoded[expected_columns]
+    df_final=df_encoded[expected_columns]
+    scale_cols=['tenure', 'MonthlyCharges', 'TotalCharges']
+    df_final[scale_cols] = scaler.transform(df_final[scale_cols])
+    
+    return df_final
 @app.post("/predict")
 async def predict_churn(customer: CustomerData):
     try:
