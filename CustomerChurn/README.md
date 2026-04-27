@@ -27,7 +27,7 @@ Approach
 
         Scaled numerical features (tenure, MonthlyCharges, TotalCharges) using StandardScaler.
 
-    Modeling: Compared Logistic Regression (LR) and Random Forest (RF) classifiers.
+    Modeling: Compared Logistic Regression (LR), XGBoost (XGB) and Random Forest (RF) classifiers.
 
     API: Wrapped the final model in a FastAPI application for deployment.
 
@@ -51,6 +51,16 @@ Plaintext
            1       0.64      0.45      0.53       374
 
     accuracy                           0.79      1407
+
+XGBoost (XGB)
+precision    recall  f1-score   support
+
+           0       0.83      0.90      0.86      1033
+           1       0.64      0.51      0.57       374
+
+    accuracy                           0.79      1407
+
+Chose Logistic regression as it has less false negatives meaning it will catch most of the customers who are about to churn.
 
 How to Run
 
